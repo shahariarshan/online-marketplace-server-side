@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const app= express()
-const port =process.env.PORT || 5000
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const app = express()
+const port = process.env.PORT || 5000
 
-// onlineMarketplace
-// b8f37icc43YmfQiT
+
 // middleware 
 
 app.use(cors())
@@ -33,15 +32,65 @@ async function run() {
     await client.connect();
 
     // collections 
-    const jobCollections =client.db('jobDB').collection('jobs')
+    const jobCollections = client.db('jobDB').collection('jobs')
+    // const bidCollection = client.db('MyBids').collection('bids')
 
-    // post job in db 
-    app.post('/services',async(req,res)=>{
-        const newJob =req.body;
-        console.log(newJob);
-        const result = await jobCollections.insertOne(newJob)
-        res.send(result)
+    // get items in db 
+    app.get('/allJobs', async (req, res) => {
+      const cursor = jobCollections.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    });
+
+   
+
+
+    app.post('/allJobs', async (req, res) => {
+      const newJob = req.body
+      console.log(newJob)
+      const result = await jobCollections.insertOne(newJob)
+      res.send(result)
+
     })
+
+
+    app.get('/allJobs/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      console.log(query);
+      const result = await jobCollections.findOne(query)
+      res.send(result)
+    })
+  
+    app.delete('/allJobs/:id',async(req,res)=>{
+  const id = req.params.id;
+  console.log(id);
+  const query= { _id:new ObjectId(id)}
+  const result= await jobCollections.deleteOne(query);
+  res.send(result);
+})
+
+    // update 
+    app.put('/allJobs/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) }
+  const options = { upsert: true }
+  const updateCategory = req.body
+  const jobs = {
+    $set: {
+      email:updateCategory.email,
+      title: updateCategory.title,
+      category: updateCategory.category,
+      data: updateCategory.data,
+      description: updateCategory.description,
+      miniPrice: updateCategory.miniPrice,
+      maxPrice: updateCategory.maxPrice,
+      
+    }
+  }
+  const result = await jobCollections.updateOne(filter, jobs, options)
+  res.send(result)
+  })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -54,9 +103,9 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send("Online marketing in running")
+app.get('/', (req, res) => {
+  res.send("Online marketing in running")
 })
-app.listen(port,()=>{
-    console.log(`Online marketing server is running on port ${port}`)
+app.listen(port, () => {
+  console.log(`Online marketing server is running on port ${port}`)
 })
