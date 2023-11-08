@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
@@ -33,8 +34,8 @@ async function run() {
 
     // collections 
     const jobCollections = client.db('jobDB').collection('jobs')
-    // const bidCollection = client.db('MyBids').collection('bids')
-
+    const bidCollection = client.db('jobDB').collection('bids')
+    // auth related api 
     // get items in db 
     app.get('/allJobs', async (req, res) => {
       const cursor = jobCollections.find()
@@ -49,6 +50,31 @@ async function run() {
       const newJob = req.body
       console.log(newJob)
       const result = await jobCollections.insertOne(newJob)
+      res.send(result)
+
+    })
+
+    app.get('/placeBid', async (req, res) => {
+      const cursor = bidCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    });
+
+
+    app.get('/placeBid/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      console.log(query);
+      const result = await bidCollection.findOne(query)
+      res.send(result)
+    });
+
+
+
+    app.post('/placeBid', async (req, res) => {
+      const newBid = req.body
+      console.log(newBid)
+      const result = await bidCollection.insertOne(newBid)
       res.send(result)
 
     })
