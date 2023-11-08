@@ -14,6 +14,10 @@ app.use(cors(
   {
   origin:[
   // 'http://localhost:5173/'
+
+  'https://online-marketplace-45fca.web.app/',
+  
+  "https://online-marketplace-45fca.firebaseapp.com/"
   ],
   credentials:true}
 ))
