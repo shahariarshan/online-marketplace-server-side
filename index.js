@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
@@ -9,7 +10,13 @@ const port = process.env.PORT || 5000
 
 // middleware 
 
-app.use(cors())
+app.use(cors(
+  {
+  origin:[
+  // 'http://localhost:5173/'
+  ],
+  credentials:true}
+))
 app.use(express.json())
 
 
@@ -55,7 +62,7 @@ async function run() {
     })
 
     app.get('/placeBid', async (req, res) => {
-      const cursor = bidCollection.find()
+      const cursor = bidCollection.find().sort({data : 1})
       const result = await cursor.toArray()
       res.send(result)
     });
