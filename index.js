@@ -15,7 +15,7 @@ app.use(cors(
   origin:[
   // 'http://localhost:5173/'
 
-  'https://online-marketplace-45fca.web.app/',
+  'https://online-marketplace-45fca.web.app',
 
   "https://online-marketplace-45fca.firebaseapp.com/"
   ],
@@ -39,7 +39,7 @@ const client = new MongoClient(uri, {
 });
 
 const logger=(req,res,next)=>{
-  console.log( "called",req.host,req.originalUrl);
+  console.log( req.host,req.originalUrl);
   next();
 }
 
@@ -59,7 +59,7 @@ async function run() {
       res
       .cookie('token',token,{
         httpOnly:true,
-        secure:false,
+        secure:true,
         
       })
       .send({success:true});
